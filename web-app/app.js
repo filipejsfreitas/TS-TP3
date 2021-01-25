@@ -2,16 +2,19 @@ const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const logger = require('morgan');
-const filesystemProvider = require('./providers/filesystem.js');
-const requestCache = require('./providers/requestCache.js');
+
+const RequestCache = require('./providers/request-cache.js');
 
 const indexRouter = require('./routes/index.js');
 
 const app = express();
 
 // Setup the filesystem provider
-app.filesystemProvider = filesystemProvider;
-app.requestCache = requestCache();
+/** @type RequestCache */
+app.requestCache = new RequestCache();
+/** @type Filesystem */
+// app.filesystem = new Filesystem(process.argv[2], app.requestCache);
+// app.filesystem.mount();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

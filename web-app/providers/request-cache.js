@@ -1,5 +1,5 @@
 class RequestCache {
-    _data = [];
+    // _data = [];
 
     constructor() {}
 
