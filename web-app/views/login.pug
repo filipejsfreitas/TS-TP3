@@ -1,0 +1,27 @@
+extends layout
+
+block content
+    div(class="bg")
+      div(class="container")
+        div(class="row")
+          div(class="col-sm-9 col-md-7 col-lg-5 mx-auto")
+            div(class="card card-signin my-5")
+              div(class="card-body")
+                h5(class="card-title text-center") Home Page:
+                form(class="form-signin" action='/login' method='POST')
+                  h6(class="card-title text-center") Please sign in
+                  div(class="form-label-group")
+                    input(type="email" id="inputEmail" name="mail" class="form-control" placeholder="Email address" required autofocus)
+                    label(for="inputEmail") Mail adress
+
+                  div(class="form-label-group")
+                    input(type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required)
+                    label(for="inputPassword") Password
+            
+                  button(class="btn btn-lg btn-primary btn-block text-uppercase" type="submit") Sign in
+
+
+        h1(class="h3 mb-3 font-weight-normal") Not registered yet?
+          form(action='/register' method='GET')
+            input(class="btn btn-lg btn-primary btn-block" type="submit" value="Just register!")
+    
