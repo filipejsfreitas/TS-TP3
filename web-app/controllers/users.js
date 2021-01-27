@@ -8,7 +8,6 @@ module.exports.exists = userData => {
   return User.exists(userData)
 }
 
-module.exports.insert = async userData => {
-  let user = new User(userData);
-  return user.save();
+module.exports.insert = (userData, password) => {
+  return User.register(new User(userData), password)
 }

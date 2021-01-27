@@ -1,12 +1,10 @@
 const express = require('express')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const passport = require('passport')
+const nanoid = require('nanoid')
 
 const Users = require('../controllers/users.js')
 
 const router = express.Router()
-
-const SALT_ROUNDS = 8;
 
 router.get('/register', (req, res) => {
   res.render('register')
@@ -14,96 +12,42 @@ router.get('/register', (req, res) => {
 
 router.post('/register', async (req, res) => {
     if(await Users.exists({ email: req.body.email })) {
-      return res.render('register', {
-        flashMessages: [
-          { type: 'danger', message: 'Um utilizador com este endereço de email já existe!' }
-        ]
-      });
+      req.flash('alert-wrong-email', { type: 'danger', icon: 'fas fa-exclamation-triangle', text: 'Um utilizador com este endereço de email já existe!' });
+
+      return res.render('register');
     }
 
     try {
       ({ email, fullname, password, unixUsername } = req.body);
 
-      try {
-        password = await bcrypt.hash(password, SALT_ROUNDS);
-      } catch(error) {
-        // Failed to encrypt password!
-        return res.render('register', {
-          flashMessages: [
-            { type: 'danger', message: 'Ocorreu um erro ao registar o utilizador!' }
-          ]
-        });
-      }
+      // TODO: Possibly validate input?
 
-      await Users.insert({ email, fullname, password, unixUsername });
+      await Users.insert({ email, fullname, unixUsername }, password);
 
-      res.redirect('/users/login?registered=true')
+      req.flash('alert-registered-successfully', { type: 'success', icon: 'fas fa-exclamation-triangle', text: 'Utilizador registado com sucesso!' });
+      
+      return res.redirect('/users/login')
     } catch(error) {
-      return res.render('register', {
-        flashMessages: [
-          { type: 'danger', message: 'Ocorreu um erro ao registar o utilizador!' }
-        ]
-      });
+      req.flash('alert-register-failed', { type: 'danger', icon: 'fas fa-exclamation-triangle', text: 'Ocorreu um erro ao registar o utilizador!' });
+
+      return res.render('register');
     }
 });
 
 router.get('/login', (req, res) => {
-  if(req.query.registered) {
-    return res.render('login', {
-      flashMessages: [
-        { type: 'success', message: 'Utilizador registado com sucesso!' }
-      ]
-    });
-  }
-
   res.render('login')
-})
+});
 
-router.post('/login', async (req, res) => {
-  ({ email, password } = req.body);
+router.post('/login',
+  passport.authenticate('local', {
+    failureRedirect: '/users/login', failureFlash: 'Username ou password incorretos!',
+    successReturnToOrRedirect: '/account'
+  })
+);
 
-  let user = await Users.getByEmail(email);
-
-  let dbPassword = null;
-  if(user) {
-    dbPassword = user.password;
-  }
-
-  // The user with the specified email might not exist at this point.
-  // Regardless, to prevent a timing attack (that distinguishes between wrong username or wrong password),
-  // we will now attempt to compare the password to a random bcrypt hash
-
-  let passwordCorrect;
-  try {
-    passwordCorrect = await bcrypt.compare(password, dbPassword);
-  } catch(error) {
-    passwordCorrect = false;
-  }
-
-  if(user && passwordCorrect) {
-    let token;
-
-    try {
-      token = await jwt.sign({ email }, process.env.JWT_KEY);
-    } catch(error) {
-      res.status(500)
-         .render('login', {
-            flashMessages: [
-              { type: 'danger', message: 'Ocorreu um erro ao autenticar o utilizador!' }
-            ]
-          });
-    }
-
-    res.status(200)
-       .cookie('token', token)
-       .redirect('/account');
-  } else {
-    res.render('login', {
-      flashMessages: [
-        { type: 'danger', message: 'Username/Password errados!' }
-      ]
-    });
-  }
-})
+router.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/');
+});
 
 module.exports = router;

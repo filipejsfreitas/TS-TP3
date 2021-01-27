@@ -1,10 +1,10 @@
 const express = require('express')
-const ApiController = require('../controllers/api.js')
+const Api = require('../controllers/api.js')
 
 const router = express.Router()
 
 router.use((req, res, next) => {
-  if (req.is('json')) {
+  if(req.is('json')) {
     next()
   } else {
     res.redirect('/')
@@ -12,7 +12,7 @@ router.use((req, res, next) => {
 })
 
 router.post('authorizeOperation', (req, res) => {
-  ApiController.authorizeOperation(req, res)
+  Api.authorizeOperation(req, res)
   .catch(error => res.status(500).jsonp({ success: false, message: 'Internal server error', error }))
 });
 

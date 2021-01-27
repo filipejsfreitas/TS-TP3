@@ -1,11 +1,15 @@
 mixin showFlashMessages
-  if flashMessages
-    each message, i in flashMessages
-      div(class='text-center alert alert-' + message.type role='alert')
-        if message.icon
-          i(class='fa ' + message.icon)/
-          | &nbsp;
-        =message.message
+  if flashData
+    each msg, name in flashData
+      if name == 'error'
+        div(class='text-center alert alert-danger' role='alert')= msg
+
+      if name.startsWith('alert')
+        div(class='text-center alert alert-' + msg.type role='alert')
+          if msg.icon
+            i(class=msg.icon)
+            | &nbsp;
+          =msg.text
 
 
 doctype html

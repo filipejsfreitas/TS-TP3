@@ -5,7 +5,14 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const passport = require('passport');
 const mongoose = require('mongoose');
+const session = require('express-session');
+const FileStore = require('session-file-store')(session);
+const { nanoid } = require('nanoid');
+const flash = require('req-flash');
+
+const User = require('./models/user.js');
 
 const RequestCache = require('./providers/request-cache.js');
 
@@ -18,21 +25,41 @@ const app = express();
 app.requestCache = new RequestCache();
 
 mongoose.connect(`mongodb://${process.env.MONGODB_IP}:${process.env.MONGODB_PORT}/${process.env.MONGODB_DB}`,
-    { useNewUrlParser: true, useUnifiedTopology: true });
+    { useNewUrlParser: true, useUnifiedTopology: true, serverSelectionTimeoutMS: 5000 });
 mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection error...'));
 mongoose.connection.once('open', function () {
     console.log("Conexão ao MongoDB realizada com sucesso...")
 });
+
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 app.use(logger('dev'));
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser())
-app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(session({
+    genid: _ => nanoid(),
+    store: new FileStore(),
+    secret: process.env.APP_SECRET,
+    resave: false,
+    saveUninitialized: true
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use(flash({
+    locals: 'flashData'
+}));
 
 app.use('/', indexRouter);
 app.use('/api', apiRouter);
