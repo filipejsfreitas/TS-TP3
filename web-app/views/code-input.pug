@@ -1,0 +1,22 @@
+extends layout
+
+block content
+  div.bg 
+    div.container
+      div.row
+        div.col-sm-9.col-md-7.col-lg-5.mx-auto
+          div.card.card-signin.my-5
+            div.card-body
+              +showFlashMessages
+
+              h5.card-title.text-center Sistema de Ficheiros de Acesso Protegido
+
+              form(action='/authorizeOperation' method='GET')
+                h6.card-title.text-center Introdução de código para autorização de operação
+
+                div.form-label-group
+                  input.form-control(type="text" id="code" name="code" placeholder="Código de autorização" required)
+                  label(for="code") Código de autorização
+          
+                button.btn.btn-lg.btn-primary.btn-block.text-uppercase(type="submit")
+                  | Verificar

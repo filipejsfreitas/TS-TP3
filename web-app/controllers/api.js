@@ -4,6 +4,7 @@ const { customAlphabet } = require('nanoid')
 
 const app = require('../app.js')
 const User = require('../models/user.js')
+const RequestCache = require('../providers/request-cache.js')
 
 const nanoid = customAlphabet('0123456789', 6)
 
@@ -16,6 +17,9 @@ const transporter = nodemailer.createTransport({
     secure: true
   }
 });
+
+const requestCache = new RequestCache();
+module.exports.requestCache = requestCache;
 
 module.exports.authorizeOperation = async (req, res) => {
   // Find the user's email by his Unix username
@@ -52,18 +56,22 @@ module.exports.authorizeOperation = async (req, res) => {
     return res.status(500).jsonp({ success: false, message: 'Error sending code email!', error })
   }
 
+  // Fail the request in 30 seconds
+  const timeoutId = setTimeout(() => {
+    if(requestCache.doesRequestExist(generatedCode)) {
+      requestCache.deleteRequest(generatedCode)
+      res.status(200).jsonp({ success: false, message: 'A code was not introduced in time to fulfill this request!' })
+    }
+  }, 30000)
+
   // Email sent. Now we wait for the response to be posted to another URL
   // but we must store this access attempt into the RequestCache
-  app.requestCache.addRequest(generatedCode, () => {
+  requestCache.addRequest(generatedCode, () => {
     // If the user successfully entered the code, send the response to the server
     res.status(200).jsonp({ success: true, message: 'The user is authorized to access this resource!' })
+    
+    clearTimeout(timeoutId);
   })
-
-  // Fail the request in 30 seconds
-  setTimeout(() => {
-    app.requestCache.deleteRequest(generatedCode)
-    res.status(200).jsonp({ success: false, message: 'A code was not introduced in time to fulfill this request!' })
-  }, 30000)
 
   return true;
 }

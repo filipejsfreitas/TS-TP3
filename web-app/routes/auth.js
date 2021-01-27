@@ -1,8 +1,9 @@
 const express = require('express')
 const passport = require('passport')
 const nanoid = require('nanoid')
+const { ensureLoggedIn, ensureLoggedOut } = require('connect-ensure-login')
 
-const Users = require('../controllers/users.js')
+const Users = require('../controllers/auth.js')
 
 const router = express.Router()
 
@@ -26,7 +27,7 @@ router.post('/register', async (req, res) => {
 
       req.flash('alert-registered-successfully', { type: 'success', icon: 'fas fa-exclamation-triangle', text: 'Utilizador registado com sucesso!' });
       
-      return res.redirect('/users/login')
+      return res.redirect('/auth/login')
     } catch(error) {
       req.flash('alert-register-failed', { type: 'danger', icon: 'fas fa-exclamation-triangle', text: 'Ocorreu um erro ao registar o utilizador!' });
 
@@ -40,12 +41,12 @@ router.get('/login', (req, res) => {
 
 router.post('/login',
   passport.authenticate('local', {
-    failureRedirect: '/users/login', failureFlash: 'Username ou password incorretos!',
+    failureRedirect: '/auth/login', failureFlash: 'Username ou password incorretos!',
     successReturnToOrRedirect: '/account'
   })
 );
 
-router.get('/logout', (req, res) => {
+router.get('/logout', ensureLoggedIn('/auth/login'), (req, res) => {
   req.logout();
   res.redirect('/');
 });

@@ -11,18 +11,15 @@ const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const { nanoid } = require('nanoid');
 const flash = require('req-flash');
+const moment = require('moment');
 
 const User = require('./models/user.js');
 
-const RequestCache = require('./providers/request-cache.js');
-
 const indexRouter = require('./routes/index.js');
 const apiRouter = require('./routes/api.js');
-const usersRouter = require('./routes/users.js');
+const authRouter = require('./routes/auth.js');
 
 const app = express();
-
-app.requestCache = new RequestCache();
 
 mongoose.connect(`mongodb://${process.env.MONGODB_IP}:${process.env.MONGODB_PORT}/${process.env.MONGODB_DB}`,
     { useNewUrlParser: true, useUnifiedTopology: true, serverSelectionTimeoutMS: 5000 });
@@ -44,6 +41,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
 app.use(cookieParser())
 
 app.use(session({
@@ -51,7 +49,10 @@ app.use(session({
     store: new FileStore(),
     secret: process.env.APP_SECRET,
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {
+        expires: moment().add(1, 'days').toDate()
+    }
 }));
 
 app.use(passport.initialize());
@@ -63,7 +64,7 @@ app.use(flash({
 
 app.use('/', indexRouter);
 app.use('/api', apiRouter);
-app.use('/users', usersRouter);
+app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

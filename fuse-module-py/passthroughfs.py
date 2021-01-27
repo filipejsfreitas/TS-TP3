@@ -59,6 +59,8 @@ from os import fsencode, fsdecode
 from collections import defaultdict
 import trio
 
+import authorize
+
 import faulthandler
 faulthandler.enable()
 
@@ -375,14 +377,18 @@ class Operations(pyfuse3.Operations):
         return stat_
 
     async def open(self, inode, flags, ctx):
-        # TODO: Request permission here
-
         if inode in self._inode_fd_map:
             fd = self._inode_fd_map[inode]
             self._fd_open_count[fd] += 1
             return pyfuse3.FileInfo(fh=fd)
 
         assert flags & os.O_CREAT == 0
+
+        try:
+            if not authorize.open(self._inode_to_path(inode), flags, ctx):
+                raise FUSEError(errno.EACCESS)
+        except:
+            raise FUSEError(errno.ETIMEDOUT)
 
         try:
             fd = os.open(self._inode_to_path(inode), flags)

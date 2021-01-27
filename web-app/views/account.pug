@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  div.bg 
+    div.container
+      div.row
+        div.col-sm-9.col-md-7.col-lg-5.mx-auto
+          div.card.card-signin.my-5
+            div.card-body
+              +showFlashMessages
+
+              h5.card-title.text-center Sistema de Ficheiros de Acesso Protegido
+
+              h5.card-title Login efetuado como: #{user.fullname}
+              h5.card-title Email: #{user.email}
+              h5.card-title Utilizador Unix: #{user.unixUsername}
+
+              a.btn.btn-lg.btn-primary.btn-block.text-uppercase(href='/auth/logout') Logout

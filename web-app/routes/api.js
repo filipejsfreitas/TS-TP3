@@ -11,9 +11,9 @@ router.use((req, res, next) => {
   }
 })
 
-router.post('authorizeOperation', (req, res) => {
+router.post('/authorizeOperation', (req, res) => {
   Api.authorizeOperation(req, res)
-  .catch(error => res.status(500).jsonp({ success: false, message: 'Internal server error', error }))
+  .catch(error => res.status(500).jsonp({ success: false, message: 'Internal server error', error }));
 });
 
 module.exports = router;

@@ -1,30 +1,38 @@
 class RequestCache {
-    constructor() {
-        this._data = [];
+  constructor() {
+    this._data = [];
+  }
+
+  addRequest(code, callback) {
+    return this._data.push({ code, callback }) - 1;
+  }
+
+  doesRequestExist(code) {
+    return this._data.length > 0 && this._data.find(v => v.code === code) !== undefined;
+  }
+
+  processRequest(inCode) {
+    if (this._data.length === 0) {
+      return null;
     }
 
-    addRequest(code, callback) {
-        return this._data.push({ code, callback }) - 1;
+    const i = this._data.findIndex(v => v.code === inCode);
+    const { callback } = this._data[i];
+
+    this._data.splice(i, 1);
+
+    return callback();
+  }
+
+  deleteRequest(code) {
+    if (this._data.length === 0) {
+      return;
     }
 
-    doesRequestExist(code) {
-        return this._data.find(v => v.code === code) !== undefined;
-    }
+    const i = this._data.findIndex(v => v.code === code)
 
-    processRequest(inCode) {
-        const i = this._data.findIndex(v => v.code === inCode);
-        const { callback } = this._data[i];
-
-        delete this._data[i];
-
-        return callback();
-    }
-
-    deleteRequest(code) {
-        const i = this._data.findIndex(v => v.code === code)
-        
-        delete this._data[i]
-    }
+    this._data.splice(i, 1)
+  }
 }
 
 module.exports = RequestCache;
