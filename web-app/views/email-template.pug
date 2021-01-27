@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    title Código Libfuse
+  body
+    h1 Tentativa de Acesso a ficheiro protegido
+    h4 Foi feita uma tentativa de acesso a um ficheiro protegido pelo utilizador #{user.fullname} (#{user.email})(Unix Username: #{user.unixUsername})
+    h4
+      | Para permitir este acesso,
+      a(href=process.env.APP_URL + '/authorizeOperation?code=' + generatedCode) clique aqui
+      | , ou aceda à seguinte página e introduza o código #{generatedCode}:
+      a(href=process.env.APP_URL + '/authorizeOperation')

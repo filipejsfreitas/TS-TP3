@@ -9,7 +9,7 @@ a {
 
 .bg {
   /* The image used */
-  background-image: url("../images/initial.jpg");
+  /* background-image: url("../images/initial.jpg"); */
   width: 100%;
   height: 100vh;
   overflow: hidden;
@@ -19,7 +19,7 @@ a {
   background-size: cover;
 }
 
-.navbar{
+.navbar {
   background-color: #51C8F1;
   min-height: 80px;
 }

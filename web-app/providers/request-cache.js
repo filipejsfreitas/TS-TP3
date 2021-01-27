@@ -1,10 +1,10 @@
 class RequestCache {
-    // _data = [];
-
-    constructor() {}
+    constructor() {
+        this._data = [];
+    }
 
     addRequest(code, callback) {
-        this._data.push({ code, callback });
+        return this._data.push({ code, callback }) - 1;
     }
 
     doesRequestExist(code) {
@@ -13,15 +13,17 @@ class RequestCache {
 
     processRequest(inCode) {
         const i = this._data.findIndex(v => v.code === inCode);
-        const { code, callback } = this._data[i];
-
-        if(!callback) {
-            return false;
-        }
+        const { callback } = this._data[i];
 
         delete this._data[i];
 
         return callback();
+    }
+
+    deleteRequest(code) {
+        const i = this._data.findIndex(v => v.code === code)
+        
+        delete this._data[i]
     }
 }
 

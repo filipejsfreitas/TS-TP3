@@ -13,9 +13,13 @@ block content
               h5.card-title.text-center
                 | Sistema de Ficheiros Protegido
 
-              form.form-signin(action='/users/login' method='POST')
-                h6.card-title.text-center Página de Login
+              form.form-signin(action='/users/register' method='POST')
+                h6.card-title.text-center Página de Registo
 
+                div.form-label-group
+                  input.form-control(type="text" id="fullname" name="fullname" placeholder="Nome completo" required autofocus)
+                  label(for="fullname") Nome completo
+            
                 div.form-label-group
                   input.form-control(type="email" id="email" name="email" placeholder="Endereço de Email" required)
                   label(for="email") Endereço de Email
@@ -23,6 +27,10 @@ block content
                 div.form-label-group
                   input.form-control(type="password" id="password" name="password" placeholder="Password" required)
                   label(for="password") Password
-          
+                
+                div.form-label-group
+                  input.form-control(type="text" id="unix-username" name="unixUsername" placeholder="Username Unix" required)
+                  label(for="unix-username") Username do sistema Unix
+              
                 button.btn.btn-lg.btn-primary.btn-block.text-uppercase(type="submit")
-                  | Login
+                  | Registar
