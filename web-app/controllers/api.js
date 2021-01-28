@@ -22,7 +22,7 @@ const requestCache = new RequestCache();
 module.exports.requestCache = requestCache;
 
 module.exports.authorizeOperation = async (req, res) => {
-  // Find the user's email by his Unix username
+  // Find the owner's email by his Unix username
   let owner;
   try {
     owner = await User.findOne({ unixUsername: req.body.owner }).exec();
@@ -30,6 +30,7 @@ module.exports.authorizeOperation = async (req, res) => {
     return res.status(500).jsonp({ success: false, message: `Could not find user with Unix username ${req.body.owner}`, error: null })
   }
 
+  // Find the user's email by his Unix username
   let user;
   try {
     user = await User.findOne({ unixUsername: req.body.user }).exec();
